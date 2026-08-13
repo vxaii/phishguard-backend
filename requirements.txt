@@ -1,9 +1,10 @@
 fastapi==0.110.0
 uvicorn==0.28.0
-tensorflow==2.16.1
-keras==3.15.0
+tensorflow>=2.15.0
+keras>=3.0.0
 pandas==2.2.1
 scikit-learn==1.4.1.post1
 pydantic==2.6.3
 sqlalchemy==2.0.28
 bcrypt==4.1.2
+psycopg2-binary==2.9.12
