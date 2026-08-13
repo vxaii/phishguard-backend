@@ -18,7 +18,10 @@ models.Base.metadata.create_all(bind=engine)
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+try:
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
+except (ImportError, ModuleNotFoundError):
+    from keras.utils import pad_sequences
 
 app = FastAPI(title="Phishing Detection API")
 
