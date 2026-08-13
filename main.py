@@ -46,6 +46,26 @@ TOKENIZER_PATH = os.path.join(BASE_DIR, "tokenizer_url_phishing.pkl")
 if not os.path.exists(TOKENIZER_PATH):
     TOKENIZER_PATH = os.path.join(BASE_DIR, "..", "tokenizer_url_phishing.pkl")
 
+# --- Keras 3.x → 2.x compatibility shim ---
+# Tokenizer pickle was saved in Colab (Keras 3.x) which references
+# keras.src.legacy.preprocessing.text.Tokenizer. TF 2.15 uses Keras 2.x
+# which doesn't have that path. This shim maps it to the correct class.
+import sys
+import types
+try:
+    import keras.src.legacy  # noqa: F401 – already available (Keras 3.x)
+except (ImportError, ModuleNotFoundError):
+    from tensorflow.keras.preprocessing.text import Tokenizer as _Tokenizer
+    _mods = {
+        "keras.src": types.ModuleType("keras.src"),
+        "keras.src.legacy": types.ModuleType("keras.src.legacy"),
+        "keras.src.legacy.preprocessing": types.ModuleType("keras.src.legacy.preprocessing"),
+        "keras.src.legacy.preprocessing.text": types.ModuleType("keras.src.legacy.preprocessing.text"),
+    }
+    _mods["keras.src.legacy.preprocessing.text"].Tokenizer = _Tokenizer
+    sys.modules.update(_mods)
+# --- End compatibility shim ---
+
 with open(TOKENIZER_PATH, "rb") as f:
     tokenizer = pickle.load(f)
 
