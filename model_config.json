@@ -1,0 +1,11 @@
+{
+    "max_len": 126,
+    "vocab_size": 148,
+    "threshold": 0.3,
+    "label_0": "Legitimate",
+    "label_1": "Phishing",
+    "architecture": "CNN-LSTM",
+    "tokenization": "character-level",
+    "split_method": "hostname-disjoint group split",
+    "dataset": "dataset_url_phishing_balanced_final.csv"
+}
