@@ -237,6 +237,7 @@ def get_history(user_id: int = None, db: Session = Depends(get_db)):
         scans = db.query(models.Scan).order_by(models.Scan.created_at.desc()).all()
     return scans
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def read_root():
     return {"message": "Phishing Detection API with DB is running!"}
+
