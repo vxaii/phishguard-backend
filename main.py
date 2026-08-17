@@ -2,6 +2,7 @@ import os
 import re
 import json
 import pickle
+import socket
 import datetime
 from urllib.parse import urlsplit, urlunsplit
 
@@ -122,6 +123,22 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     
     return {"id": db_user.id, "email": db_user.email, "message": "Login successful"}
 
+def check_domain_exists(url: str) -> bool:
+    try:
+        parts = urlsplit(url if '://' in url else 'https://' + url)
+        netloc = parts.netloc.split(':')[0].strip().lower()
+        if not netloc:
+            return False
+        # If it's an IPv4 address
+        if re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", netloc):
+            return True
+        # Perform fast DNS resolution
+        socket.setdefaulttimeout(3.0)
+        socket.gethostbyname(netloc)
+        return True
+    except Exception:
+        return False
+
 @app.post("/predict")
 def predict_url(request: URLRequest, db: Session = Depends(get_db)):
     original_url = request.url
@@ -129,6 +146,13 @@ def predict_url(request: URLRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="URL cannot be empty")
 
     norm_url = normalize_url_prediction(original_url)
+
+    # 1. DNS Resolution Validation (Cek keberadaan domain di internet)
+    if not check_domain_exists(norm_url):
+        raise HTTPException(
+            status_code=422,
+            detail="Domain tidak ditemukan atau tidak terdaftar di internet. Harap periksa kembali alamat URL Anda."
+        )
     
     seq = tokenizer.texts_to_sequences([norm_url])
     padded = pad_sequences(seq, maxlen=MAX_LEN, padding="post")
