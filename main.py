@@ -80,7 +80,7 @@ def normalize_url_prediction(url):
         parts = urlsplit(url)
         scheme = parts.scheme.lower()
         netloc = parts.netloc.lower().rstrip(".")
-        path = "" if parts.path == "/" else parts.path
+        path = parts.path if parts.path else "/"
         query = parts.query
         return urlunsplit((scheme, netloc, path, query, ""))
     except Exception:
